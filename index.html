@@ -381,6 +381,194 @@
       padding: 20px 16px 48px;
     }
 
+    /* ── SHARE OVERLAY ──────────────────────────────────────── */
+    .share-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 300;
+      background: linear-gradient(155deg, #2C2C2D 0%, #383838 60%, #1e1e1e 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: auto;
+    }
+    .share-overlay.hidden { display: none; }
+    .share-overlay::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(ellipse at 10% 90%, rgba(235,90,58,0.11) 0%, transparent 50%),
+        radial-gradient(ellipse at 88% 12%, rgba(128,200,190,0.08) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    .share-ui-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: calc(12px + env(safe-area-inset-top)) 16px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 301;
+      background: linear-gradient(to bottom, rgba(20,20,20,0.8) 0%, transparent 100%);
+    }
+    .share-hint-text {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.38);
+      letter-spacing: 0.04em;
+      transition: opacity 0.8s ease;
+    }
+    .share-hint-text.hidden { opacity: 0; pointer-events: none; }
+    .share-close-btn {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: white;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s;
+      font-family: inherit;
+      flex-shrink: 0;
+    }
+    .share-close-btn:hover { background: rgba(255,255,255,0.22); }
+    .share-card {
+      width: min(460px, 100vw);
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 28px;
+      padding: 80px 28px 56px;
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+    }
+    .share-brand {
+      font-family: 'Bricolage Grotesque', system-ui, sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.35);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .share-total-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .share-total-pct {
+      font-family: 'Bricolage Grotesque', system-ui, sans-serif;
+      font-size: 5.5rem;
+      font-weight: 800;
+      color: white;
+      line-height: 1;
+      letter-spacing: -4px;
+    }
+    .share-total-label {
+      font-family: 'IBM Plex Serif', serif;
+      font-style: italic;
+      font-size: 1rem;
+      color: rgba(255,255,255,0.5);
+    }
+    .share-total-ch {
+      font-family: 'Bricolage Grotesque', system-ui, sans-serif;
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.25);
+      margin-top: 2px;
+    }
+    .share-sub-stats {
+      display: flex;
+      align-items: stretch;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      overflow: hidden;
+      width: 100%;
+      max-width: 320px;
+    }
+    .share-sub-stat {
+      flex: 1;
+      padding: 18px 16px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .share-sub-divider {
+      width: 1px;
+      background: rgba(255,255,255,0.1);
+    }
+    .share-sub-pct {
+      font-family: 'Bricolage Grotesque', system-ui, sans-serif;
+      font-size: 2rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+    .share-sub-at { color: #848923; }
+    .share-sub-nt { color: #80C8BE; }
+    .share-sub-lbl {
+      font-size: 0.58rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba(255,255,255,0.38);
+    }
+    .share-sub-ch { font-size: 0.62rem; color: rgba(255,255,255,0.2); }
+    .share-milestones { display: flex; gap: 18px; align-items: center; }
+    .share-milestone {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      opacity: 0.18;
+      filter: grayscale(1);
+    }
+    .share-milestone.unlocked { opacity: 1; filter: none; }
+    .share-ms-icon { font-size: 2rem; line-height: 1; }
+    .share-ms-pct {
+      font-family: 'Bricolage Grotesque', system-ui, sans-serif;
+      font-size: 0.58rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.3);
+    }
+    .share-milestone.unlocked .share-ms-pct { color: #F49A6B; }
+    .share-goal-text {
+      font-family: 'IBM Plex Serif', serif;
+      font-style: italic;
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.38);
+      text-align: center;
+      line-height: 1.7;
+      max-width: 280px;
+    }
+    .share-date {
+      font-family: 'Bricolage Grotesque', system-ui, sans-serif;
+      font-size: 0.62rem;
+      color: rgba(255,255,255,0.18);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .share-bildmarke {
+      position: absolute;
+      bottom: -60px;
+      right: -70px;
+      width: 260px;
+      height: 325px;
+      opacity: 0.05;
+      pointer-events: none;
+      color: #80C8BE;
+    }
+    .share-bildmarke svg { width: 100%; height: 100%; }
+
     /* ── SECTION HEADERS ────────────────────────────────────── */
     .section-head {
       display: flex;
@@ -786,6 +974,46 @@
 </head>
 <body>
 
+  <!-- ── SHARE OVERLAY ──────────────────────────────────── -->
+  <div class="share-overlay hidden" id="shareOverlay" role="dialog" aria-modal="true" aria-label="Statistiken teilen">
+    <div class="share-ui-bar">
+      <span class="share-hint-text">📸 Screenshot aufnehmen, dann schließen</span>
+      <button class="share-close-btn" id="shareCloseBtn" aria-label="Schließen">✕</button>
+    </div>
+    <div class="share-card">
+      <div class="share-brand">📖 BibleTracker</div>
+      <div class="share-total-wrap">
+        <div class="share-total-pct" id="shareTotalPct">0%</div>
+        <div class="share-total-label">der Bibel gelesen</div>
+        <div class="share-total-ch" id="shareTotalCh"></div>
+      </div>
+      <div class="share-sub-stats">
+        <div class="share-sub-stat">
+          <div class="share-sub-pct share-sub-at" id="shareATPct">0%</div>
+          <div class="share-sub-lbl">Altes Testament</div>
+          <div class="share-sub-ch" id="shareATCh"></div>
+        </div>
+        <div class="share-sub-divider"></div>
+        <div class="share-sub-stat">
+          <div class="share-sub-pct share-sub-nt" id="shareNTPct">0%</div>
+          <div class="share-sub-lbl">Neues Testament</div>
+          <div class="share-sub-ch" id="shareNTCh"></div>
+        </div>
+      </div>
+      <div class="share-milestones" id="shareMilestones"></div>
+      <div class="share-goal-text" id="shareGoalText"></div>
+      <div class="share-date" id="shareDate"></div>
+      <div class="share-bildmarke" aria-hidden="true">
+        <svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg">
+          <path fill="none" stroke="currentColor" stroke-width="20"
+                d="m200,327.5c-93.92265,0 -170,-69.81215 -170,-156c0,-86.18785 76.07735,-156 170,-156c93.92265,0 170,69.81215 170,156c0,86.18785 -76.07735,156 -170,156z"/>
+          <path fill="none" stroke="currentColor" stroke-width="20"
+                d="m30,329.5c0,-86.18785 76.07735,-156 170,-156c93.92265,0 170,69.81215 170,156c0,86.18785 -76.07735,156 -170,156l-168,0l-2,-156z"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
   <!-- ── GOAL MODAL ─────────────────────────────────── -->
   <div class="modal-bg hidden" id="goalModal" role="dialog" aria-modal="true" aria-label="Zieldatum festlegen">
     <div class="modal">
@@ -811,6 +1039,7 @@
       <span class="app-title">📖 Bible<span>Tracker</span></span>
       <button class="hdr-btn hdr-btn-ghost" id="importBtn" title="JSON importieren">⬆ <span class="hdr-btn-label">Import</span></button>
       <button class="hdr-btn hdr-btn-ghost" id="exportBtn" title="JSON exportieren">⬇ <span class="hdr-btn-label">Export</span></button>
+      <button class="hdr-btn hdr-btn-ghost" id="shareBtn" title="Statistik teilen">📤 <span class="hdr-btn-label">Teilen</span></button>
       <button class="hdr-btn hdr-btn-accent" id="goalHeaderBtn" title="Zieldatum ändern">🎯 <span class="hdr-btn-label">Ziel</span></button>
     </div>
   </header>
@@ -1355,6 +1584,61 @@
     updateStats();
     openGoalModal();
     showToast('Alle Daten zurückgesetzt');
+  });
+
+  /* ═══════════════════════════════════════════════════
+     SHARE OVERLAY
+  ═══════════════════════════════════════════════════ */
+  function openShareOverlay() {
+    document.getElementById('shareTotalPct').textContent = document.getElementById('heroTotalPct').textContent;
+    document.getElementById('shareTotalCh').textContent  = document.getElementById('heroTotalCh').textContent;
+    document.getElementById('shareATPct').textContent    = document.getElementById('heroATPct').textContent;
+    document.getElementById('shareATCh').textContent     = document.getElementById('heroATCh').textContent;
+    document.getElementById('shareNTPct').textContent    = document.getElementById('heroNTPct').textContent;
+    document.getElementById('shareNTCh').textContent     = document.getElementById('heroNTCh').textContent;
+
+    const MS = [
+      {id:'ms10',  icon:'🌱', pct:'10%'},
+      {id:'ms25',  icon:'🔥', pct:'25%'},
+      {id:'ms50',  icon:'⭐', pct:'50%'},
+      {id:'ms75',  icon:'🏆', pct:'75%'},
+      {id:'ms100', icon:'👑', pct:'100%'},
+    ];
+    const wrap = document.getElementById('shareMilestones');
+    wrap.innerHTML = '';
+    MS.forEach(m => {
+      const unlocked = document.getElementById(m.id).classList.contains('unlocked');
+      const el = document.createElement('div');
+      el.className = 'share-milestone' + (unlocked ? ' unlocked' : '');
+      el.innerHTML = `<span class="share-ms-icon">${m.icon}</span><span class="share-ms-pct">${m.pct}</span>`;
+      wrap.appendChild(el);
+    });
+
+    const goalRaw = document.getElementById('heroGoal').innerText.trim();
+    document.getElementById('shareGoalText').textContent = goalRaw;
+
+    const now = new Date();
+    document.getElementById('shareDate').textContent =
+      now.toLocaleDateString('de-DE', {day:'numeric', month:'long', year:'numeric'});
+
+    document.getElementById('shareOverlay').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+
+    const hint = document.getElementById('shareOverlay').querySelector('.share-hint-text');
+    hint.classList.remove('hidden');
+    clearTimeout(window._shareHintTimer);
+    window._shareHintTimer = setTimeout(() => hint.classList.add('hidden'), 5000);
+  }
+
+  function closeShareOverlay() {
+    document.getElementById('shareOverlay').classList.add('hidden');
+    document.body.style.overflow = '';
+  }
+
+  document.getElementById('shareBtn').addEventListener('click', openShareOverlay);
+  document.getElementById('shareCloseBtn').addEventListener('click', closeShareOverlay);
+  document.getElementById('shareOverlay').addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeShareOverlay();
   });
 
   /* ═══════════════════════════════════════════════════
