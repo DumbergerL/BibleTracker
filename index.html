@@ -103,115 +103,240 @@
     }
     .hdr-btn-accent:hover { background: var(--accent-light); }
 
-    /* ── STATS BAR ─────────────────────────────────────────── */
-    .stats-bar {
-      background: var(--primary-dark);
-      padding: 14px 16px;
-    }
-    .stats-inner {
-      max-width: 960px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: repeat(3, 1fr) 1fr;
-      gap: 12px;
-      align-items: center;
-    }
-
-    .stat-cell { text-align: center; }
-    .stat-label {
-      font-size: 0.65rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: rgba(255,255,255,0.5);
-      margin-bottom: 2px;
-    }
-    .stat-value {
-      font-size: 1.35rem;
-      font-weight: 800;
-      color: var(--accent-light);
-      line-height: 1;
-    }
-    .stat-sub {
-      font-size: 0.65rem;
-      color: rgba(255,255,255,0.4);
-      margin-top: 2px;
-    }
-
-    .bars-col {
+    /* ── HERO DASHBOARD ─────────────────────────────────────── */
+    .hero {
+      min-height: calc(100vh - 56px);
+      background: linear-gradient(160deg, var(--primary-dark) 0%, #1c3e26 55%, #0f2218 100%);
       display: flex;
       flex-direction: column;
-      gap: 5px;
-    }
-    .bar-row {
-      display: flex;
       align-items: center;
-      gap: 7px;
+      justify-content: center;
+      padding: 28px 20px 20px;
+      position: relative;
+      overflow: hidden;
+      gap: 22px;
     }
-    .bar-lbl {
-      font-size: 0.6rem;
-      color: rgba(255,255,255,0.55);
-      width: 28px;
-      text-align: right;
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        radial-gradient(ellipse at 15% 85%, rgba(201,168,76,0.09) 0%, transparent 45%),
+        radial-gradient(ellipse at 85% 15%, rgba(82,183,136,0.07) 0%, transparent 45%);
+      pointer-events: none;
+    }
+
+    /* ── MAIN RING ──────────────────────────────────────────── */
+    .hero-ring-wrap {
+      position: relative;
+      width: 210px;
+      height: 210px;
       flex-shrink: 0;
     }
-    .bar-track {
-      flex: 1;
-      height: 5px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 3px;
-      overflow: hidden;
-      min-width: 50px;
-    }
-    .bar-fill {
+    .ring-svg {
+      width: 100%;
       height: 100%;
-      border-radius: 3px;
-      transition: width 0.6s cubic-bezier(.4,0,.2,1);
+      filter: drop-shadow(0 0 22px rgba(201,168,76,0.2));
     }
-    .fill-at    { background: var(--at-color); }
-    .fill-nt    { background: var(--nt-color); }
-    .fill-total { background: var(--accent); }
-
-    @media (max-width: 600px) {
-      .stats-inner { grid-template-columns: repeat(3, 1fr); }
-      .bars-col { grid-column: 1 / -1; flex-direction: row; gap: 8px; }
-      .bar-row { flex: 1; flex-direction: column; align-items: stretch; gap: 2px; }
-      .bar-lbl { text-align: center; width: auto; }
-      .stat-value { font-size: 1.1rem; }
+    .ring-bg {
+      fill: none;
+      stroke: rgba(255,255,255,0.08);
+      stroke-width: 13;
+    }
+    .ring-fill-total {
+      fill: none;
+      stroke: var(--accent);
+      stroke-width: 13;
+      stroke-linecap: round;
+      transition: stroke-dasharray 0.9s cubic-bezier(.4,0,.2,1);
+    }
+    .ring-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+    .ring-pct {
+      font-size: 2.8rem;
+      font-weight: 900;
+      color: var(--accent-light);
+      line-height: 1;
+      letter-spacing: -2px;
+    }
+    .ring-lbl {
+      font-size: 0.64rem;
+      color: rgba(255,255,255,0.4);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-top: 5px;
+    }
+    .ring-ch {
+      font-size: 0.67rem;
+      color: rgba(255,255,255,0.28);
+      margin-top: 3px;
     }
 
-    /* ── GOAL BANNER ────────────────────────────────────────── */
-    .goal-banner {
-      background: var(--bg-card);
-      border-bottom: 1px solid var(--border);
-      padding: 8px 16px;
+    /* ── SUB RINGS ──────────────────────────────────────────── */
+    .sub-rings { display: flex; gap: 36px; align-items: flex-start; }
+    .sub-ring-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .ring-wrap-inner {
+      position: relative;
+      width: 88px;
+      height: 88px;
+    }
+    .sub-ring-svg { width: 100%; height: 100%; }
+    .sub-ring-bg {
+      fill: none;
+      stroke: rgba(255,255,255,0.08);
+      stroke-width: 9;
+    }
+    .sub-ring-fill {
+      fill: none;
+      stroke-width: 9;
+      stroke-linecap: round;
+      transition: stroke-dasharray 0.9s cubic-bezier(.4,0,.2,1);
+    }
+    .sub-ring-at { stroke: var(--at-color); }
+    .sub-ring-nt { stroke: var(--nt-color); }
+    .sub-ring-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      font-weight: 800;
+      color: white;
+    }
+    .sub-ring-name {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: rgba(255,255,255,0.4);
+    }
+    .sub-ring-sub {
+      font-size: 0.58rem;
+      color: rgba(255,255,255,0.24);
+      margin-top: -3px;
+    }
+
+    /* ── HERO STAT CARDS ────────────────────────────────────── */
+    .hero-cards { display: flex; gap: 8px; }
+    .hero-card {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 14px;
+      padding: 13px 16px;
       text-align: center;
-      font-size: 0.82rem;
-      color: var(--text-muted);
-      line-height: 1.6;
+      min-width: 88px;
+      backdrop-filter: blur(4px);
     }
-    .goal-link {
-      color: var(--primary-light);
+    .hero-card-value {
+      font-size: 1.55rem;
+      font-weight: 900;
+      color: white;
+      line-height: 1;
+      letter-spacing: -0.5px;
+    }
+    .hero-card-label {
+      font-size: 0.59rem;
+      color: rgba(255,255,255,0.38);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-top: 5px;
+    }
+
+    /* ── MILESTONES ─────────────────────────────────────────── */
+    .milestones { display: flex; gap: 12px; align-items: center; }
+    .milestone {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      opacity: 0.22;
+      filter: grayscale(1);
+      transition: opacity 0.5s, filter 0.5s;
+    }
+    .milestone.unlocked { opacity: 1; filter: none; }
+    .milestone.just-unlocked {
+      animation: ms-pop 0.55s cubic-bezier(.36,.07,.19,.97);
+    }
+    @keyframes ms-pop {
+      0%   { transform: scale(1); }
+      35%  { transform: scale(1.45); }
+      65%  { transform: scale(0.88); }
+      100% { transform: scale(1); }
+    }
+    .milestone-icon { font-size: 1.7rem; line-height: 1; }
+    .milestone-pct {
+      font-size: 0.58rem;
+      font-weight: 700;
+      color: rgba(255,255,255,0.38);
+    }
+    .milestone.unlocked .milestone-pct { color: var(--accent-light); }
+
+    /* ── HERO GOAL ──────────────────────────────────────────── */
+    .hero-goal {
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.45);
+      text-align: center;
+      line-height: 1.9;
+    }
+    .hero-goal .goal-link {
+      color: var(--accent-light);
       font-weight: 700;
       cursor: pointer;
       text-decoration: underline;
       text-underline-offset: 2px;
     }
-    .goal-highlight {
+    .hero-goal .goal-highlight {
+      color: white;
       font-weight: 700;
-      color: var(--text);
     }
     .goal-set-btn {
       background: none;
-      border: 1.5px dashed var(--primary-light);
-      color: var(--primary-light);
-      padding: 4px 14px;
+      border: 1.5px dashed var(--accent);
+      color: var(--accent-light);
+      padding: 6px 18px;
       border-radius: 20px;
-      font-size: 0.8rem;
+      font-size: 0.82rem;
       font-weight: 600;
       cursor: pointer;
       font-family: inherit;
+      transition: background 0.15s;
     }
-    .goal-set-btn:hover { background: rgba(45,122,69,0.08); }
+    .goal-set-btn:hover { background: rgba(201,168,76,0.1); }
+
+    /* ── SCROLL HINT ────────────────────────────────────────── */
+    .scroll-hint {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      color: rgba(255,255,255,0.22);
+      font-size: 0.6rem;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: color 0.2s;
+      animation: sh-bounce 2.4s ease-in-out infinite;
+      user-select: none;
+      margin-top: 4px;
+    }
+    .scroll-hint:hover { color: rgba(255,255,255,0.55); }
+    .scroll-hint-arrow { font-size: 1.25rem; line-height: 1; }
+    @keyframes sh-bounce {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(8px); }
+    }
 
     /* ── MAIN CONTENT ───────────────────────────────────────── */
     .main {
@@ -537,17 +662,17 @@
       .hdr-btn-label { display: none; }
       .app-title { font-size: 1.05rem; }
 
-      /* Stats: tighter */
-      .stats-bar { padding: 12px 12px; }
-      .stat-label { font-size: 0.6rem; }
-      .stat-value { font-size: 1rem; }
-
-      /* Goal banner: wrap gracefully */
-      .goal-banner {
-        font-size: 0.78rem;
-        padding: 8px 12px;
-        line-height: 1.75;
-      }
+      /* Hero: compact on mobile */
+      .hero { gap: 16px; padding: 20px 16px 16px; min-height: calc(100svh - 56px); }
+      .hero-ring-wrap { width: 165px; height: 165px; }
+      .ring-pct { font-size: 2.1rem; }
+      .ring-wrap-inner { width: 72px; height: 72px; }
+      .sub-rings { gap: 20px; }
+      .hero-cards { gap: 5px; }
+      .hero-card { padding: 10px 11px; min-width: 70px; }
+      .hero-card-value { font-size: 1.25rem; }
+      .milestones { gap: 7px; }
+      .milestone-icon { font-size: 1.35rem; }
 
       /* Section: hide long meta text */
       .section-meta { display: none; }
@@ -649,43 +774,99 @@
     </div>
   </header>
 
-  <!-- ── STATS BAR ────────────────────────────────── -->
-  <div class="stats-bar" role="region" aria-label="Fortschritt">
-    <div class="stats-inner">
-      <div class="stat-cell">
-        <div class="stat-label">Altes Testament</div>
-        <div class="stat-value" id="statAT">0%</div>
-        <div class="stat-sub" id="statATSub">0 / 929</div>
-      </div>
-      <div class="stat-cell">
-        <div class="stat-label">Neues Testament</div>
-        <div class="stat-value" id="statNT">0%</div>
-        <div class="stat-sub" id="statNTSub">0 / 260</div>
-      </div>
-      <div class="stat-cell">
-        <div class="stat-label">Gesamt</div>
-        <div class="stat-value" id="statTotal">0%</div>
-        <div class="stat-sub" id="statTotalSub">0 / 1189</div>
-      </div>
-      <div class="bars-col">
-        <div class="bar-row">
-          <span class="bar-lbl">AT</span>
-          <div class="bar-track"><div class="bar-fill fill-at" id="barAT" style="width:0%"></div></div>
-        </div>
-        <div class="bar-row">
-          <span class="bar-lbl">NT</span>
-          <div class="bar-track"><div class="bar-fill fill-nt" id="barNT" style="width:0%"></div></div>
-        </div>
-        <div class="bar-row">
-          <span class="bar-lbl">Ges.</span>
-          <div class="bar-track"><div class="bar-fill fill-total" id="barTotal" style="width:0%"></div></div>
-        </div>
+  <!-- ── HERO DASHBOARD ───────────────────────────────────── -->
+  <section class="hero" id="hero" role="region" aria-label="Fortschritts-Dashboard">
+
+    <!-- Main progress ring -->
+    <div class="hero-ring-wrap">
+      <svg class="ring-svg" viewBox="0 0 200 200" aria-hidden="true">
+        <circle class="ring-bg" cx="100" cy="100" r="80"/>
+        <circle class="ring-fill-total" id="ringTotal" cx="100" cy="100" r="80"
+                stroke-dasharray="0 502.65" transform="rotate(-90 100 100)"/>
+      </svg>
+      <div class="ring-center">
+        <span class="ring-pct" id="heroTotalPct">0%</span>
+        <span class="ring-lbl">Gesamt</span>
+        <span class="ring-ch" id="heroTotalCh">0 / 1189 Kap.</span>
       </div>
     </div>
-  </div>
 
-  <!-- ── GOAL BANNER ──────────────────────────────── -->
-  <div class="goal-banner" id="goalBanner" role="status"></div>
+    <!-- AT + NT sub-rings -->
+    <div class="sub-rings">
+      <div class="sub-ring-wrap">
+        <div class="ring-wrap-inner">
+          <svg class="sub-ring-svg" viewBox="0 0 88 88" aria-hidden="true">
+            <circle class="sub-ring-bg" cx="44" cy="44" r="34"/>
+            <circle class="sub-ring-fill sub-ring-at" id="ringAT" cx="44" cy="44" r="34"
+                    stroke-dasharray="0 213.63" transform="rotate(-90 44 44)"/>
+          </svg>
+          <div class="sub-ring-center" id="heroATPct">0%</div>
+        </div>
+        <span class="sub-ring-name">Altes Test.</span>
+        <span class="sub-ring-sub" id="heroATCh">0 / 929</span>
+      </div>
+
+      <div class="sub-ring-wrap">
+        <div class="ring-wrap-inner">
+          <svg class="sub-ring-svg" viewBox="0 0 88 88" aria-hidden="true">
+            <circle class="sub-ring-bg" cx="44" cy="44" r="34"/>
+            <circle class="sub-ring-fill sub-ring-nt" id="ringNT" cx="44" cy="44" r="34"
+                    stroke-dasharray="0 213.63" transform="rotate(-90 44 44)"/>
+          </svg>
+          <div class="sub-ring-center" id="heroNTPct">0%</div>
+        </div>
+        <span class="sub-ring-name">Neues Test.</span>
+        <span class="sub-ring-sub" id="heroNTCh">0 / 260</span>
+      </div>
+    </div>
+
+    <!-- Stat cards -->
+    <div class="hero-cards">
+      <div class="hero-card">
+        <div class="hero-card-value" id="heroChPerDay">–</div>
+        <div class="hero-card-label">Kap./Tag</div>
+      </div>
+      <div class="hero-card">
+        <div class="hero-card-value" id="heroDaysLeft">–</div>
+        <div class="hero-card-label">Tage noch</div>
+      </div>
+      <div class="hero-card">
+        <div class="hero-card-value" id="heroChRead">0</div>
+        <div class="hero-card-label">Kap. gelesen</div>
+      </div>
+    </div>
+
+    <!-- Milestone badges -->
+    <div class="milestones" role="list" aria-label="Meilensteine">
+      <div class="milestone" id="ms10"  role="listitem" title="10% gelesen">
+        <span class="milestone-icon">🌱</span><span class="milestone-pct">10%</span>
+      </div>
+      <div class="milestone" id="ms25"  role="listitem" title="25% gelesen">
+        <span class="milestone-icon">🔥</span><span class="milestone-pct">25%</span>
+      </div>
+      <div class="milestone" id="ms50"  role="listitem" title="Halbzeit!">
+        <span class="milestone-icon">⭐</span><span class="milestone-pct">50%</span>
+      </div>
+      <div class="milestone" id="ms75"  role="listitem" title="75% gelesen">
+        <span class="milestone-icon">🏆</span><span class="milestone-pct">75%</span>
+      </div>
+      <div class="milestone" id="ms100" role="listitem" title="Bibel komplett!">
+        <span class="milestone-icon">👑</span><span class="milestone-pct">100%</span>
+      </div>
+    </div>
+
+    <!-- Goal info -->
+    <div class="hero-goal" id="heroGoal" role="status"></div>
+
+    <!-- Scroll to books -->
+    <div class="scroll-hint"
+         onclick="document.getElementById('main').scrollIntoView({behavior:'smooth'})"
+         role="button" tabindex="0" aria-label="Zu den Büchern scrollen">
+      <span class="scroll-hint-arrow">↓</span>
+      <span>Bücher</span>
+    </div>
+
+  </section>
 
   <!-- ── BOOK LIST ─────────────────────────────────── -->
   <main class="main" id="main"></main>
@@ -827,6 +1008,11 @@
   /* ═══════════════════════════════════════════════════
      STATS
   ═══════════════════════════════════════════════════ */
+  const CIRC_MAIN = 2 * Math.PI * 80;  // ≈ 502.65
+  const CIRC_SUB  = 2 * Math.PI * 34;  // ≈ 213.63
+  const MS_LEVELS = [10, 25, 50, 75, 100];
+  let prevUnlocked = new Set();
+
   function updateStats() {
     const atRead    = countRead(AT_BOOKS);
     const ntRead    = countRead(NT_BOOKS);
@@ -836,46 +1022,79 @@
     const ntPct    = NT_TOTAL    > 0 ? Math.round(ntRead    / NT_TOTAL    * 100) : 0;
     const totalPct = GRAND_TOTAL > 0 ? Math.round(totalRead / GRAND_TOTAL * 100) : 0;
 
-    document.getElementById('statAT').textContent    = atPct + '%';
-    document.getElementById('statATSub').textContent = atRead + ' / ' + AT_TOTAL;
-    document.getElementById('statNT').textContent    = ntPct + '%';
-    document.getElementById('statNTSub').textContent = ntRead + ' / ' + NT_TOTAL;
-    document.getElementById('statTotal').textContent    = totalPct + '%';
-    document.getElementById('statTotalSub').textContent = totalRead + ' / ' + GRAND_TOTAL;
+    // Main ring
+    document.getElementById('ringTotal').setAttribute('stroke-dasharray',
+      `${(totalPct / 100 * CIRC_MAIN).toFixed(2)} ${CIRC_MAIN.toFixed(2)}`);
+    document.getElementById('heroTotalPct').textContent = totalPct + '%';
+    document.getElementById('heroTotalCh').textContent  = totalRead + ' / ' + GRAND_TOTAL + ' Kap.';
 
-    document.getElementById('barAT').style.width    = atPct + '%';
-    document.getElementById('barNT').style.width    = ntPct + '%';
-    document.getElementById('barTotal').style.width = totalPct + '%';
+    // AT sub-ring
+    document.getElementById('ringAT').setAttribute('stroke-dasharray',
+      `${(atPct / 100 * CIRC_SUB).toFixed(2)} ${CIRC_SUB.toFixed(2)}`);
+    document.getElementById('heroATPct').textContent = atPct + '%';
+    document.getElementById('heroATCh').textContent  = atRead + ' / ' + AT_TOTAL;
 
-    // Goal banner
-    const banner = document.getElementById('goalBanner');
+    // NT sub-ring
+    document.getElementById('ringNT').setAttribute('stroke-dasharray',
+      `${(ntPct / 100 * CIRC_SUB).toFixed(2)} ${CIRC_SUB.toFixed(2)}`);
+    document.getElementById('heroNTPct').textContent = ntPct + '%';
+    document.getElementById('heroNTCh').textContent  = ntRead + ' / ' + NT_TOTAL;
+
+    // Stat cards
+    document.getElementById('heroChRead').textContent = totalRead;
+
+    // Milestone badges
+    MS_LEVELS.forEach(m => {
+      const el     = document.getElementById('ms' + m);
+      const earned = totalPct >= m;
+      el.classList.toggle('unlocked', earned);
+      if (earned && !prevUnlocked.has(m)) {
+        el.classList.remove('just-unlocked');
+        void el.offsetWidth; // restart animation
+        el.classList.add('just-unlocked');
+        prevUnlocked.add(m);
+      }
+      if (!earned) prevUnlocked.delete(m);
+    });
+
+    // Goal section
+    const goalEl = document.getElementById('heroGoal');
+
     if (!goalDate) {
-      banner.innerHTML = '<button class="goal-set-btn" id="goalSetBtn">🎯 Zieldatum festlegen</button>';
+      goalEl.innerHTML = '<button class="goal-set-btn" id="goalSetBtn">🎯 Zieldatum festlegen</button>';
       document.getElementById('goalSetBtn').addEventListener('click', openGoalModal);
+      document.getElementById('heroDaysLeft').textContent = '–';
+      document.getElementById('heroChPerDay').textContent  = '–';
       return;
     }
 
-    const today    = new Date(); today.setHours(0, 0, 0, 0);
-    const goal     = new Date(goalDate + 'T00:00:00');
-    const daysLeft = Math.ceil((goal - today) / 86400000);
+    const today     = new Date(); today.setHours(0, 0, 0, 0);
+    const goal      = new Date(goalDate + 'T00:00:00');
+    const daysLeft  = Math.ceil((goal - today) / 86400000);
     const remaining = GRAND_TOTAL - totalRead;
+    const goalFmt   = goal.toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' });
 
-    const goalFmt = goal.toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' });
+    document.getElementById('heroDaysLeft').textContent = daysLeft > 0 ? daysLeft : '0';
 
     if (totalRead >= GRAND_TOTAL) {
-      banner.innerHTML = '🎉 <span class="goal-highlight">Ziel erreicht! Die gesamte Bibel gelesen.</span>';
+      goalEl.innerHTML = '🎉 <span class="goal-highlight">Ziel erreicht! Die gesamte Bibel gelesen.</span>';
+      document.getElementById('heroChPerDay').textContent = '✓';
       return;
     }
+
     if (daysLeft <= 0) {
-      banner.innerHTML = `Ziel war: <span class="goal-link" id="goalLinkEl">${goalFmt}</span> &nbsp;·&nbsp; <span style="color:#e05454;font-weight:700">Zieldatum überschritten!</span>`;
+      document.getElementById('heroChPerDay').textContent = '–';
+      goalEl.innerHTML =
+        `Ziel war: <span class="goal-link" id="goalLinkEl">${goalFmt}</span><br>` +
+        `<span style="color:#f87171;font-weight:700">Zieldatum überschritten!</span>`;
     } else {
       const chPerDay = (remaining / daysLeft).toFixed(1);
-      banner.innerHTML =
-        `Ziel: <span class="goal-link" id="goalLinkEl">${goalFmt}</span>` +
-        ` &nbsp;·&nbsp; Noch <span class="goal-highlight">${daysLeft}</span> Tage` +
-        ` &nbsp;·&nbsp; <span class="goal-highlight">${chPerDay} Kap/Tag</span> nötig`;
+      document.getElementById('heroChPerDay').textContent = chPerDay;
+      goalEl.innerHTML = `Ziel: <span class="goal-link" id="goalLinkEl">${goalFmt}</span>`;
     }
-    document.getElementById('goalLinkEl').addEventListener('click', openGoalModal);
+
+    const linkEl = document.getElementById('goalLinkEl');
+    if (linkEl) linkEl.addEventListener('click', openGoalModal);
   }
 
   /* ═══════════════════════════════════════════════════
