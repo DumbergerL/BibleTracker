@@ -1,4 +1,4 @@
-/* BiblelTracker Service Worker */
+/* BibleTracker Service Worker */
 const CACHE_NAME = 'bibletracker-v1';
 const ASSETS = [
   './',
