@@ -1090,12 +1090,20 @@
      EXPORT / IMPORT
   ═══════════════════════════════════════════════════ */
   document.getElementById('exportBtn').addEventListener('click', () => {
-    const payload = JSON.stringify({ version: 1, exportDate: new Date().toISOString(), goal: goalDate, read: readChapters }, null, 2);
-    const blob    = new Blob([payload], { type: 'application/json' });
-    const url     = URL.createObjectURL(blob);
-    const a       = document.createElement('a');
-    a.href        = url;
-    a.download    = 'bibletracker_' + new Date().toISOString().split('T')[0] + '.json';
+    // Export read chapters as a plain array of keys for human readability.
+    // E.g. ["1. Mose_1", "1. Mose_2", ...] — presence = read, absence = not read.
+    const readArray = Object.keys(readChapters);
+    const payload   = JSON.stringify({
+      version:    2,
+      exportDate: new Date().toISOString(),
+      goal:       goalDate,
+      read:       readArray,
+    }, null, 2);
+    const blob = new Blob([payload], { type: 'application/json' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = 'bibletracker_' + new Date().toISOString().split('T')[0] + '.json';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -1114,11 +1122,28 @@
     reader.onload = (ev) => {
       try {
         const data = JSON.parse(ev.target.result);
-        if (typeof data !== 'object' || !data.read || typeof data.read !== 'object') {
+        if (typeof data !== 'object' || data === null || !data.read) {
           throw new Error('Ungültig');
         }
-        // Validate that keys look like our format (basic check)
-        readChapters = data.read;
+
+        const newRead = {};
+        if (Array.isArray(data.read)) {
+          // v2 format: array of read chapter keys
+          const validKey = /^.+_\d+$/;
+          data.read.forEach((key) => {
+            if (typeof key === 'string' && validKey.test(key)) newRead[key] = true;
+          });
+        } else if (typeof data.read === 'object') {
+          // v1 format (legacy): { "Book_ch": true } — only accept truthy values
+          const validKey = /^.+_\d+$/;
+          Object.entries(data.read).forEach(([key, val]) => {
+            if (typeof key === 'string' && validKey.test(key) && val) newRead[key] = true;
+          });
+        } else {
+          throw new Error('Ungültig');
+        }
+
+        readChapters = newRead;
         if (data.goal && typeof data.goal === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(data.goal)) {
           goalDate = data.goal;
         }
