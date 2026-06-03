@@ -452,6 +452,20 @@
       overflow: hidden;
       z-index: 1;
     }
+    /* Compact layout for small phones (iPhone SE etc.) */
+    @media (max-height: 700px) {
+      .share-card {
+        gap: 16px;
+        padding: 72px 20px 32px;
+      }
+      .share-total-pct { font-size: 4rem; letter-spacing: -3px; }
+      .share-total-label { font-size: 0.85rem; }
+      .share-sub-pct { font-size: 1.5rem; }
+      .share-sub-stat { padding: 12px 14px; }
+      .share-ms-icon { font-size: 1.5rem; }
+      .share-milestones { gap: 12px; }
+      .share-goal-text { font-size: 0.72rem; line-height: 1.5; }
+    }
     .share-brand {
       font-family: 'Bricolage Grotesque', system-ui, sans-serif;
       font-size: 0.9rem;
