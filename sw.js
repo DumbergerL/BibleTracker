@@ -1,5 +1,5 @@
 /* BibleTracker Service Worker */
-const CACHE_NAME = 'bibletracker-v1';
+const CACHE_NAME = 'bibletracker-v2';
 const ASSETS = [
   './',
   './index.html',
