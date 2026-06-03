@@ -5,8 +5,8 @@
   "start_url": "./",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#12301b",
-  "theme_color": "#1e4d2b",
+  "background_color": "#2C2C2D",
+  "theme_color": "#848923",
   "lang": "de",
   "categories": ["lifestyle", "productivity"],
   "icons": [

@@ -5,47 +5,64 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>BibleTracker</title>
   <meta name="description" content="Verfolge deinen Bibelleseplan und erreiche dein Zieldatum">
-  <meta name="theme-color" content="#1e4d2b">
+  <meta name="theme-color" content="#848923">
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=IBM+Plex+Serif:ital,wght@0,300;0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --primary:        #1e4d2b;
-      --primary-light:  #2d7a45;
-      --primary-dark:   #12301b;
-      --accent:         #c9a84c;
-      --accent-light:   #e5c76a;
-      --bg:             #f4ede0;
-      --bg-card:        #ffffff;
-      --text:           #1a1a1a;
-      --text-muted:     #6b6560;
-      --border:         #e0d5c5;
-      --at-color:       #52b788;
-      --nt-color:       #74b3ce;
+      /* — Brückengemeinde Brand Colors — */
+      --primary:        #848923;  /* Mosgrün */
+      --primary-light:  #9fa82d;
+      --primary-dark:   #2C2C2D;  /* Anthrazit */
+      --accent:         #EB5A3A;  /* Rotorange */
+      --accent-light:   #F49A6B;  /* Pfirsich */
+      --dunkelrot:      #791714;
+      --petrol:         #80C8BE;
+      --petrol-light:   #BFE1DE;
+      --bg:             #E4DECD;  /* Beige */
+      --bg-card:        #FFFFFF;
+      --text:           #2C2C2D;  /* Anthrazit */
+      --text-muted:     #7a756d;
+      --border:         #D8D2C4;
+      --at-color:       #848923;  /* Mosgrün für AT */
+      --nt-color:       #80C8BE;  /* Petrol für NT */
       --radius:         12px;
-      --shadow:         0 2px 10px rgba(0,0,0,0.07);
+      --shadow:         0 2px 12px rgba(44,44,45,0.1);
     }
 
     @media (prefers-color-scheme: dark) {
       :root {
-        --bg:         #181a17;
-        --bg-card:    #222620;
-        --text:       #e8e0d0;
-        --text-muted: #8a8478;
-        --border:     #2e3228;
+        --bg:         #2C2C2D;
+        --bg-card:    #3a3a3b;
+        --text:       #E4DECD;
+        --text-muted: #9a9588;
+        --border:     #4a4a4b;
       }
     }
 
     html { scroll-behavior: smooth; }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      font-family: 'IBM Plex Serif', Georgia, 'Times New Roman', serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
+    }
+
+    /* Bricolage Grotesque for display / headline elements */
+    .app-title, .ring-pct, .hero-card-value, .modal-title,
+    .section-title, .milestone-pct, .hdr-btn, .btn-xs,
+    .btn-year-quick, .btn-confirm, .goal-set-btn, .book-name,
+    .book-stat, .sub-ring-center, .stat-value, .hero-card-label,
+    .ring-lbl, .ring-ch, .sub-ring-name, .sub-ring-sub,
+    .section-badge, .bar-lbl, .ch-btn, .btn-xs {
+      font-family: 'Bricolage Grotesque', system-ui, sans-serif;
     }
 
     /* ── HEADER ─────────────────────────────────────────────── */
@@ -74,7 +91,7 @@
       letter-spacing: -0.5px;
       flex: 1;
     }
-    .app-title span { color: var(--accent-light); }
+    .app-title span { color: rgba(255,255,255,0.65); font-weight: 400; }
 
     .hdr-btn {
       display: flex;
@@ -98,15 +115,16 @@
     .hdr-btn-ghost:hover { background: rgba(255,255,255,0.22); }
 
     .hdr-btn-accent {
-      background: var(--accent);
-      color: var(--primary-dark);
+      background: rgba(255,255,255,0.18);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.35);
     }
-    .hdr-btn-accent:hover { background: var(--accent-light); }
+    .hdr-btn-accent:hover { background: rgba(255,255,255,0.28); }
 
     /* ── HERO DASHBOARD ─────────────────────────────────────── */
     .hero {
       min-height: calc(100vh - 56px);
-      background: linear-gradient(160deg, var(--primary-dark) 0%, #1c3e26 55%, #0f2218 100%);
+      background: linear-gradient(155deg, #2C2C2D 0%, #383838 60%, #1e1e1e 100%);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -121,9 +139,27 @@
       position: absolute;
       inset: 0;
       background-image:
-        radial-gradient(ellipse at 15% 85%, rgba(201,168,76,0.09) 0%, transparent 45%),
-        radial-gradient(ellipse at 85% 15%, rgba(82,183,136,0.07) 0%, transparent 45%);
+        radial-gradient(ellipse at 10% 90%, rgba(235,90,58,0.11) 0%, transparent 50%),
+        radial-gradient(ellipse at 88% 12%, rgba(128,200,190,0.08) 0%, transparent 50%);
       pointer-events: none;
+    }
+    /* Bildmarke (Brückengemeinde two-ring mark) as angeschnittene Deko */
+    .bildmarke-deco {
+      position: absolute;
+      bottom: -80px;
+      right: -90px;
+      width: 340px;
+      height: 425px;
+      opacity: 0.055;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .bildmarke-deco svg {
+      width: 100%; height: 100%;
+    }
+    .bildmarke-deco path {
+      stroke: #80C8BE;
+      stroke-width: 20;
     }
 
     /* ── MAIN RING ──────────────────────────────────────────── */
@@ -136,7 +172,7 @@
     .ring-svg {
       width: 100%;
       height: 100%;
-      filter: drop-shadow(0 0 22px rgba(201,168,76,0.2));
+      filter: drop-shadow(0 0 24px rgba(235,90,58,0.3));
     }
     .ring-bg {
       fill: none;
@@ -354,6 +390,9 @@
       margin-top: 28px;
     }
     .section-head:first-child { margin-top: 0; }
+
+    /* Space before NT section */
+    .main > section + section { margin-top: 48px; }
 
     .section-badge {
       padding: 3px 11px;
@@ -665,6 +704,8 @@
       /* Hero: compact on mobile */
       .hero { gap: 16px; padding: 20px 16px 16px; min-height: calc(100svh - 56px); }
       .hero-ring-wrap { width: 165px; height: 165px; }
+
+      .bildmarke-deco { display: none; }
       .ring-pct { font-size: 2.1rem; }
       .ring-wrap-inner { width: 72px; height: 72px; }
       .sub-rings { gap: 20px; }
@@ -864,6 +905,16 @@
          role="button" tabindex="0" aria-label="Zu den Büchern scrollen">
       <span class="scroll-hint-arrow">↓</span>
       <span>Bücher</span>
+    </div>
+
+    <!-- Bildmarke Brückengemeinde (decorative, angeschnitten) -->
+    <div class="bildmarke-deco" aria-hidden="true">
+      <svg width="400" height="500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500">
+        <path fill="none" stroke="currentColor" stroke-width="20"
+              d="m200,327.5c-93.92265,0 -170,-69.81215 -170,-156c0,-86.18785 76.07735,-156 170,-156c93.92265,0 170,69.81215 170,156c0,86.18785 -76.07735,156 -170,156z"/>
+        <path fill="none" stroke="currentColor" stroke-width="20"
+              d="m30,329.5c0,-86.18785 76.07735,-156 170,-156c93.92265,0 170,69.81215 170,156c0,86.18785 -76.07735,156 -170,156l-168,0l-2,-156z"/>
+      </svg>
     </div>
 
   </section>
