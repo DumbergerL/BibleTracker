@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BiblelTracker</title>
+  <meta name="description" content="Verfolge deinen Bibelleseplan und erreiche dein Zieldatum">
+  <meta name="theme-color" content="#1e4d2b">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary:        #1e4d2b;
+      --primary-light:  #2d7a45;
+      --primary-dark:   #12301b;
+      --accent:         #c9a84c;
+      --accent-light:   #e5c76a;
+      --bg:             #f4ede0;
+      --bg-card:        #ffffff;
+      --text:           #1a1a1a;
+      --text-muted:     #6b6560;
+      --border:         #e0d5c5;
+      --at-color:       #52b788;
+      --nt-color:       #74b3ce;
+      --radius:         12px;
+      --shadow:         0 2px 10px rgba(0,0,0,0.07);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg:         #181a17;
+        --bg-card:    #222620;
+        --text:       #e8e0d0;
+        --text-muted: #8a8478;
+        --border:     #2e3228;
+      }
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ─────────────────────────────────────────────── */
+    header {
+      background: var(--primary);
+      color: white;
+      padding: 0 16px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+    }
+
+    .header-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .app-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      flex: 1;
+    }
+    .app-title span { color: var(--accent-light); }
+
+    .hdr-btn {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: none;
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, opacity 0.15s;
+      white-space: nowrap;
+    }
+    .hdr-btn-ghost {
+      background: rgba(255,255,255,0.12);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .hdr-btn-ghost:hover { background: rgba(255,255,255,0.22); }
+
+    .hdr-btn-accent {
+      background: var(--accent);
+      color: var(--primary-dark);
+    }
+    .hdr-btn-accent:hover { background: var(--accent-light); }
+
+    /* ── STATS BAR ─────────────────────────────────────────── */
+    .stats-bar {
+      background: var(--primary-dark);
+      padding: 14px 16px;
+    }
+    .stats-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr) 1fr;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .stat-cell { text-align: center; }
+    .stat-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 2px;
+    }
+    .stat-value {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--accent-light);
+      line-height: 1;
+    }
+    .stat-sub {
+      font-size: 0.65rem;
+      color: rgba(255,255,255,0.4);
+      margin-top: 2px;
+    }
+
+    .bars-col {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .bar-row {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .bar-lbl {
+      font-size: 0.6rem;
+      color: rgba(255,255,255,0.55);
+      width: 28px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .bar-track {
+      flex: 1;
+      height: 5px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 3px;
+      overflow: hidden;
+      min-width: 50px;
+    }
+    .bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.6s cubic-bezier(.4,0,.2,1);
+    }
+    .fill-at    { background: var(--at-color); }
+    .fill-nt    { background: var(--nt-color); }
+    .fill-total { background: var(--accent); }
+
+    @media (max-width: 600px) {
+      .stats-inner { grid-template-columns: repeat(3, 1fr); }
+      .bars-col { grid-column: 1 / -1; flex-direction: row; gap: 8px; }
+      .bar-row { flex: 1; flex-direction: column; align-items: stretch; gap: 2px; }
+      .bar-lbl { text-align: center; width: auto; }
+      .stat-value { font-size: 1.1rem; }
+    }
+
+    /* ── GOAL BANNER ────────────────────────────────────────── */
+    .goal-banner {
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      padding: 8px 16px;
+      text-align: center;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+    .goal-link {
+      color: var(--primary-light);
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .goal-highlight {
+      font-weight: 700;
+      color: var(--text);
+    }
+    .goal-set-btn {
+      background: none;
+      border: 1.5px dashed var(--primary-light);
+      color: var(--primary-light);
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .goal-set-btn:hover { background: rgba(45,122,69,0.08); }
+
+    /* ── MAIN CONTENT ───────────────────────────────────────── */
+    .main {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 20px 16px 48px;
+    }
+
+    /* ── SECTION HEADERS ────────────────────────────────────── */
+    .section-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      margin-top: 28px;
+    }
+    .section-head:first-child { margin-top: 0; }
+
+    .section-badge {
+      padding: 3px 11px;
+      border-radius: 20px;
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      flex-shrink: 0;
+    }
+    .badge-at { background: var(--at-color); color: white; }
+    .badge-nt { background: var(--nt-color); color: white; }
+
+    .section-title { font-size: 1rem; font-weight: 700; }
+    .section-meta { margin-left: auto; font-size: 0.75rem; color: var(--text-muted); }
+
+    /* ── BOOK CARDS ─────────────────────────────────────────── */
+    .books-list { display: flex; flex-direction: column; gap: 6px; }
+
+    .book-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .book-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 14px;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.1s;
+    }
+    .book-header:hover { background: rgba(30,77,43,0.04); }
+
+    .book-name {
+      font-size: 0.9rem;
+      font-weight: 600;
+      flex: 1;
+    }
+
+    .book-stat {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .book-mini-bar {
+      width: 56px;
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .book-mini-fill {
+      height: 100%;
+      background: var(--primary-light);
+      border-radius: 2px;
+      transition: width 0.35s;
+    }
+
+    .book-done {
+      font-size: 0.65rem;
+      background: var(--at-color);
+      color: white;
+      padding: 2px 7px;
+      border-radius: 10px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .book-arrow {
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      transition: transform 0.22s;
+      flex-shrink: 0;
+    }
+    .book-card.open .book-arrow { transform: rotate(180deg); }
+
+    /* ── CHAPTERS PANEL ─────────────────────────────────────── */
+    .chapters-panel {
+      display: none;
+      padding: 2px 12px 12px;
+      border-top: 1px solid var(--border);
+    }
+    .book-card.open .chapters-panel { display: block; }
+
+    .ch-actions {
+      display: flex;
+      gap: 6px;
+      padding: 8px 0 10px;
+    }
+    .btn-xs {
+      font-size: 0.72rem;
+      padding: 3px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.12s, color 0.12s;
+    }
+    .btn-xs:hover { background: var(--border); color: var(--text); }
+
+    .ch-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .ch-btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 7px;
+      border: 1.5px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .ch-btn:hover { border-color: var(--primary-light); transform: scale(1.08); }
+    .ch-btn:active { transform: scale(0.95); }
+    .ch-btn.read {
+      background: var(--primary-light);
+      border-color: var(--primary-light);
+      color: white;
+    }
+    .ch-btn.read:hover { background: var(--primary); border-color: var(--primary); }
+
+    /* ── MODAL ──────────────────────────────────────────────── */
+    .modal-bg {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(5px);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 1;
+      transition: opacity 0.2s;
+    }
+    .modal-bg.hidden { display: none; }
+
+    .modal {
+      background: var(--bg-card);
+      border-radius: 20px;
+      padding: 32px 28px;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.35);
+    }
+
+    .modal-icon {
+      text-align: center;
+      font-size: 3rem;
+      margin-bottom: 14px;
+    }
+    .modal-title {
+      text-align: center;
+      font-size: 1.35rem;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+    .modal-desc {
+      text-align: center;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      line-height: 1.55;
+      margin-bottom: 24px;
+    }
+
+    .modal-body { display: flex; flex-direction: column; gap: 10px; }
+
+    .date-input {
+      width: 100%;
+      padding: 11px 14px;
+      border-radius: 10px;
+      border: 2px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.15s;
+      cursor: pointer;
+    }
+    .date-input:focus { border-color: var(--primary-light); }
+
+    .modal-divider {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+    }
+    .modal-divider::before, .modal-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .btn-year-quick {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 11px;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.12s, border-color 0.12s;
+    }
+    .btn-year-quick:hover { background: var(--border); border-color: var(--primary-light); }
+
+    .btn-confirm {
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      background: var(--primary);
+      color: white;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.15s;
+      margin-top: 4px;
+    }
+    .btn-confirm:hover { background: var(--primary-light); }
+
+    /* ── TOAST ──────────────────────────────────────────────── */
+    .toast {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #232323;
+      color: white;
+      padding: 9px 20px;
+      border-radius: 24px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      z-index: 300;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.25s, transform 0.25s;
+      white-space: nowrap;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ── RESET CONFIRM ──────────────────────────────────────── */
+    .reset-link {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-align: center;
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      margin-top: 4px;
+    }
+    .reset-link:hover { color: #e05454; }
+
+    /* ── MOBILE LABEL (hidden on desktop) ──────────────────── */
+    .hdr-btn-label { display: inline; }
+
+    /* ════════════════════════════════════════════════════════
+       RESPONSIVE — MOBILE FIRST OVERRIDES
+    ════════════════════════════════════════════════════════ */
+
+    /* ── Safe-area padding (iPhone notch / home bar) ───────── */
+    header {
+      padding-top: env(safe-area-inset-top);
+    }
+    body {
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    @media (max-width: 480px) {
+      /* Header: icon-only buttons to save space */
+      .hdr-btn {
+        padding: 7px 10px;
+        font-size: 0.75rem;
+      }
+      .hdr-btn-label { display: none; }
+      .app-title { font-size: 1.05rem; }
+
+      /* Stats: tighter */
+      .stats-bar { padding: 12px 12px; }
+      .stat-label { font-size: 0.6rem; }
+      .stat-value { font-size: 1rem; }
+
+      /* Goal banner: wrap gracefully */
+      .goal-banner {
+        font-size: 0.78rem;
+        padding: 8px 12px;
+        line-height: 1.75;
+      }
+
+      /* Section: hide long meta text */
+      .section-meta { display: none; }
+
+      /* Book header: larger touch target */
+      .book-header {
+        padding: 13px 12px;
+        min-height: 52px;
+      }
+      .book-name { font-size: 0.92rem; }
+
+      /* Hide mini-bar on very small screens to reduce clutter */
+      .book-mini-bar { display: none; }
+
+      /* Chapters: bigger touch targets */
+      .ch-btn {
+        width: 42px;
+        height: 42px;
+        font-size: 0.8rem;
+        border-radius: 8px;
+      }
+      .ch-grid { gap: 6px; }
+
+      /* Main padding */
+      .main { padding: 14px 12px 80px; }
+      .section-head { margin-top: 22px; }
+    }
+
+    /* ── Tablet / large phone ──────────────────────────────── */
+    @media (min-width: 481px) and (max-width: 768px) {
+      .ch-btn {
+        width: 38px;
+        height: 38px;
+      }
+      .section-meta { font-size: 0.7rem; }
+    }
+
+    /* ── Modal: bottom-sheet on mobile ─────────────────────── */
+    @media (max-width: 540px) {
+      .modal-bg {
+        align-items: flex-end;
+        padding: 0;
+      }
+      .modal {
+        border-radius: 24px 24px 0 0;
+        padding: 28px 20px calc(20px + env(safe-area-inset-bottom));
+        max-width: 100%;
+        width: 100%;
+        animation: slide-up 0.3s cubic-bezier(.4,0,.2,1);
+      }
+      @keyframes slide-up {
+        from { transform: translateY(60px); opacity: 0; }
+        to   { transform: translateY(0);    opacity: 1; }
+      }
+      .modal-title { font-size: 1.2rem; }
+      .btn-year-quick, .btn-confirm { padding: 14px; font-size: 1rem; }
+      .date-input { font-size: 1rem; padding: 13px 14px; }
+    }
+
+    /* ── No-hover touch devices: remove hover side effects ─── */
+    @media (hover: none) {
+      .ch-btn:hover { transform: none; border-color: var(--border); }
+      .ch-btn.read:hover { background: var(--primary-light); border-color: var(--primary-light); }
+      .book-header:hover { background: transparent; }
+      /* Keep active state for tactile feedback */
+      .ch-btn:active { transform: scale(0.93); background: rgba(45,122,69,0.12); border-color: var(--primary-light); }
+      .ch-btn.read:active { background: var(--primary); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── GOAL MODAL ─────────────────────────────────── -->
+  <div class="modal-bg hidden" id="goalModal" role="dialog" aria-modal="true" aria-label="Zieldatum festlegen">
+    <div class="modal">
+      <div class="modal-icon">📖</div>
+      <h2 class="modal-title">Willkommen!</h2>
+      <p class="modal-desc">Bis wann möchtest du die Bibel durchlesen?<br>Wähle ein Datum oder nutze die Schnellauswahl.</p>
+      <div class="modal-body">
+        <input type="date" class="date-input" id="goalDateInput" aria-label="Zieldatum">
+        <div class="modal-divider">oder</div>
+        <button class="btn-year-quick" id="oneYearBtn">📅 &nbsp;1 Jahr ab heute</button>
+        <button class="btn-confirm" id="confirmGoalBtn">Loslegen →</button>
+        <span class="reset-link" id="resetLink" style="display:none">Alle Daten zurücksetzen</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TOAST ─────────────────────────────────────── -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <!-- ── HEADER ─────────────────────────────────────── -->
+  <header>
+    <div class="header-inner">
+      <span class="app-title">📖 Bibel<span>Tracker</span></span>
+      <button class="hdr-btn hdr-btn-ghost" id="importBtn" title="JSON importieren">⬆ <span class="hdr-btn-label">Import</span></button>
+      <button class="hdr-btn hdr-btn-ghost" id="exportBtn" title="JSON exportieren">⬇ <span class="hdr-btn-label">Export</span></button>
+      <button class="hdr-btn hdr-btn-accent" id="goalHeaderBtn" title="Zieldatum ändern">🎯 <span class="hdr-btn-label">Ziel</span></button>
+    </div>
+  </header>
+
+  <!-- ── STATS BAR ────────────────────────────────── -->
+  <div class="stats-bar" role="region" aria-label="Fortschritt">
+    <div class="stats-inner">
+      <div class="stat-cell">
+        <div class="stat-label">Altes Testament</div>
+        <div class="stat-value" id="statAT">0%</div>
+        <div class="stat-sub" id="statATSub">0 / 929</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">Neues Testament</div>
+        <div class="stat-value" id="statNT">0%</div>
+        <div class="stat-sub" id="statNTSub">0 / 260</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">Gesamt</div>
+        <div class="stat-value" id="statTotal">0%</div>
+        <div class="stat-sub" id="statTotalSub">0 / 1189</div>
+      </div>
+      <div class="bars-col">
+        <div class="bar-row">
+          <span class="bar-lbl">AT</span>
+          <div class="bar-track"><div class="bar-fill fill-at" id="barAT" style="width:0%"></div></div>
+        </div>
+        <div class="bar-row">
+          <span class="bar-lbl">NT</span>
+          <div class="bar-track"><div class="bar-fill fill-nt" id="barNT" style="width:0%"></div></div>
+        </div>
+        <div class="bar-row">
+          <span class="bar-lbl">Ges.</span>
+          <div class="bar-track"><div class="bar-fill fill-total" id="barTotal" style="width:0%"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── GOAL BANNER ──────────────────────────────── -->
+  <div class="goal-banner" id="goalBanner" role="status"></div>
+
+  <!-- ── BOOK LIST ─────────────────────────────────── -->
+  <main class="main" id="main"></main>
+
+  <!-- hidden file input for import -->
+  <input type="file" id="fileInput" accept=".json" style="display:none" aria-hidden="true">
+
+  <script>
+  'use strict';
+
+  /* ═══════════════════════════════════════════════════
+     DATA
+  ═══════════════════════════════════════════════════ */
+  const AT_BOOKS = [
+    { name: '1. Mose',        chapters: 50 },
+    { name: '2. Mose',        chapters: 40 },
+    { name: '3. Mose',        chapters: 27 },
+    { name: '4. Mose',        chapters: 36 },
+    { name: '5. Mose',        chapters: 34 },
+    { name: 'Josua',          chapters: 24 },
+    { name: 'Richter',        chapters: 21 },
+    { name: 'Ruth',           chapters:  4 },
+    { name: '1. Samuel',      chapters: 31 },
+    { name: '2. Samuel',      chapters: 24 },
+    { name: '1. Könige',      chapters: 22 },
+    { name: '2. Könige',      chapters: 25 },
+    { name: '1. Chronik',     chapters: 29 },
+    { name: '2. Chronik',     chapters: 36 },
+    { name: 'Esra',           chapters: 10 },
+    { name: 'Nehemia',        chapters: 13 },
+    { name: 'Esther',         chapters: 10 },
+    { name: 'Hiob',           chapters: 42 },
+    { name: 'Psalmen',        chapters: 150 },
+    { name: 'Sprüche',        chapters: 31 },
+    { name: 'Prediger',       chapters: 12 },
+    { name: 'Hohelied',       chapters:  8 },
+    { name: 'Jesaja',         chapters: 66 },
+    { name: 'Jeremia',        chapters: 52 },
+    { name: 'Klagelieder',    chapters:  5 },
+    { name: 'Hesekiel',       chapters: 48 },
+    { name: 'Daniel',         chapters: 12 },
+    { name: 'Hosea',          chapters: 14 },
+    { name: 'Joel',           chapters:  4 },
+    { name: 'Amos',           chapters:  9 },
+    { name: 'Obadja',         chapters:  1 },
+    { name: 'Jona',           chapters:  4 },
+    { name: 'Micha',          chapters:  7 },
+    { name: 'Nahum',          chapters:  3 },
+    { name: 'Habakuk',        chapters:  3 },
+    { name: 'Zefanja',        chapters:  3 },
+    { name: 'Haggai',         chapters:  2 },
+    { name: 'Sacharja',       chapters: 14 },
+    { name: 'Maleachi',       chapters:  3 },
+  ];
+
+  const NT_BOOKS = [
+    { name: 'Matthäus',           chapters: 28 },
+    { name: 'Markus',             chapters: 16 },
+    { name: 'Lukas',              chapters: 24 },
+    { name: 'Johannes',           chapters: 21 },
+    { name: 'Apostelgeschichte',  chapters: 28 },
+    { name: 'Römer',              chapters: 16 },
+    { name: '1. Korinther',       chapters: 16 },
+    { name: '2. Korinther',       chapters: 13 },
+    { name: 'Galater',            chapters:  6 },
+    { name: 'Epheser',            chapters:  6 },
+    { name: 'Philipper',          chapters:  4 },
+    { name: 'Kolosser',           chapters:  4 },
+    { name: '1. Thessalonicher',  chapters:  5 },
+    { name: '2. Thessalonicher',  chapters:  3 },
+    { name: '1. Timotheus',       chapters:  6 },
+    { name: '2. Timotheus',       chapters:  4 },
+    { name: 'Titus',              chapters:  3 },
+    { name: 'Philemon',           chapters:  1 },
+    { name: 'Hebräer',            chapters: 13 },
+    { name: 'Jakobus',            chapters:  5 },
+    { name: '1. Petrus',          chapters:  5 },
+    { name: '2. Petrus',          chapters:  3 },
+    { name: '1. Johannes',        chapters:  5 },
+    { name: '2. Johannes',        chapters:  1 },
+    { name: '3. Johannes',        chapters:  1 },
+    { name: 'Judas',              chapters:  1 },
+    { name: 'Offenbarung',        chapters: 22 },
+  ];
+
+  const AT_TOTAL    = AT_BOOKS.reduce((s, b) => s + b.chapters, 0); // 929
+  const NT_TOTAL    = NT_BOOKS.reduce((s, b) => s + b.chapters, 0); // 260
+  const GRAND_TOTAL = AT_TOTAL + NT_TOTAL;                           // 1189
+
+  /* ═══════════════════════════════════════════════════
+     STATE
+  ═══════════════════════════════════════════════════ */
+  let readChapters = {}; // e.g. { "1. Mose_3": true }
+  let goalDate     = null; // "YYYY-MM-DD"
+
+  const LS_READ = 'bt_read';
+  const LS_GOAL = 'bt_goal';
+
+  function loadState() {
+    try {
+      const r = localStorage.getItem(LS_READ);
+      if (r) readChapters = JSON.parse(r);
+      const g = localStorage.getItem(LS_GOAL);
+      if (g) goalDate = g;
+    } catch (e) { /* ignore */ }
+  }
+
+  function saveState() {
+    try {
+      localStorage.setItem(LS_READ, JSON.stringify(readChapters));
+      if (goalDate) localStorage.setItem(LS_GOAL, goalDate);
+    } catch (e) { /* ignore */ }
+  }
+
+  function chKey(bookName, ch) { return bookName + '_' + ch; }
+  function isRead(bookName, ch) { return !!readChapters[chKey(bookName, ch)]; }
+
+  function setRead(bookName, ch, val) {
+    const k = chKey(bookName, ch);
+    if (val) readChapters[k] = true;
+    else delete readChapters[k];
+  }
+
+  function countRead(books) {
+    return books.reduce((total, book) => {
+      for (let i = 1; i <= book.chapters; i++) {
+        if (isRead(book.name, i)) total++;
+      }
+      return total;
+    }, 0);
+  }
+
+  function countReadBook(book) {
+    let n = 0;
+    for (let i = 1; i <= book.chapters; i++) if (isRead(book.name, i)) n++;
+    return n;
+  }
+
+  /* ═══════════════════════════════════════════════════
+     STATS
+  ═══════════════════════════════════════════════════ */
+  function updateStats() {
+    const atRead    = countRead(AT_BOOKS);
+    const ntRead    = countRead(NT_BOOKS);
+    const totalRead = atRead + ntRead;
+
+    const atPct    = AT_TOTAL    > 0 ? Math.round(atRead    / AT_TOTAL    * 100) : 0;
+    const ntPct    = NT_TOTAL    > 0 ? Math.round(ntRead    / NT_TOTAL    * 100) : 0;
+    const totalPct = GRAND_TOTAL > 0 ? Math.round(totalRead / GRAND_TOTAL * 100) : 0;
+
+    document.getElementById('statAT').textContent    = atPct + '%';
+    document.getElementById('statATSub').textContent = atRead + ' / ' + AT_TOTAL;
+    document.getElementById('statNT').textContent    = ntPct + '%';
+    document.getElementById('statNTSub').textContent = ntRead + ' / ' + NT_TOTAL;
+    document.getElementById('statTotal').textContent    = totalPct + '%';
+    document.getElementById('statTotalSub').textContent = totalRead + ' / ' + GRAND_TOTAL;
+
+    document.getElementById('barAT').style.width    = atPct + '%';
+    document.getElementById('barNT').style.width    = ntPct + '%';
+    document.getElementById('barTotal').style.width = totalPct + '%';
+
+    // Goal banner
+    const banner = document.getElementById('goalBanner');
+    if (!goalDate) {
+      banner.innerHTML = '<button class="goal-set-btn" id="goalSetBtn">🎯 Zieldatum festlegen</button>';
+      document.getElementById('goalSetBtn').addEventListener('click', openGoalModal);
+      return;
+    }
+
+    const today    = new Date(); today.setHours(0, 0, 0, 0);
+    const goal     = new Date(goalDate + 'T00:00:00');
+    const daysLeft = Math.ceil((goal - today) / 86400000);
+    const remaining = GRAND_TOTAL - totalRead;
+
+    const goalFmt = goal.toLocaleDateString('de-DE', { day: '2-digit', month: 'long', year: 'numeric' });
+
+    if (totalRead >= GRAND_TOTAL) {
+      banner.innerHTML = '🎉 <span class="goal-highlight">Ziel erreicht! Die gesamte Bibel gelesen.</span>';
+      return;
+    }
+    if (daysLeft <= 0) {
+      banner.innerHTML = `Ziel war: <span class="goal-link" id="goalLinkEl">${goalFmt}</span> &nbsp;·&nbsp; <span style="color:#e05454;font-weight:700">Zieldatum überschritten!</span>`;
+    } else {
+      const chPerDay = (remaining / daysLeft).toFixed(1);
+      banner.innerHTML =
+        `Ziel: <span class="goal-link" id="goalLinkEl">${goalFmt}</span>` +
+        ` &nbsp;·&nbsp; Noch <span class="goal-highlight">${daysLeft}</span> Tage` +
+        ` &nbsp;·&nbsp; <span class="goal-highlight">${chPerDay} Kap/Tag</span> nötig`;
+    }
+    document.getElementById('goalLinkEl').addEventListener('click', openGoalModal);
+  }
+
+  /* ═══════════════════════════════════════════════════
+     BOOK CARD
+  ═══════════════════════════════════════════════════ */
+  function createBookCard(book) {
+    const card = document.createElement('div');
+    card.className = 'book-card';
+
+    /* header */
+    const hdr = document.createElement('div');
+    hdr.className = 'book-header';
+    hdr.setAttribute('role', 'button');
+    hdr.setAttribute('tabindex', '0');
+    hdr.setAttribute('aria-expanded', 'false');
+    hdr.setAttribute('aria-label', book.name + ' aufklappen');
+
+    const nameEl  = document.createElement('span'); nameEl.className  = 'book-name';
+    const statEl  = document.createElement('span'); statEl.className  = 'book-stat';
+    const miniBar = document.createElement('div');  miniBar.className = 'book-mini-bar';
+    const miniFill = document.createElement('div'); miniFill.className = 'book-mini-fill';
+    const arrow   = document.createElement('span'); arrow.className   = 'book-arrow'; arrow.textContent = '▼';
+
+    miniBar.appendChild(miniFill);
+    nameEl.textContent = book.name;
+
+    hdr.appendChild(nameEl);
+    hdr.appendChild(statEl);
+    hdr.appendChild(miniBar);
+    hdr.appendChild(arrow);
+
+    /* chapters panel */
+    const panel  = document.createElement('div'); panel.className = 'chapters-panel';
+    const actions = document.createElement('div'); actions.className = 'ch-actions';
+    const grid   = document.createElement('div'); grid.className = 'ch-grid';
+
+    const allReadBtn = document.createElement('button'); allReadBtn.className = 'btn-xs'; allReadBtn.textContent = 'Alle ✓';
+    const noneBtn    = document.createElement('button'); noneBtn.className    = 'btn-xs'; noneBtn.textContent    = 'Alle ✗';
+
+    allReadBtn.addEventListener('click', () => { markAllBook(book, true, card, statEl, miniFill, grid); saveState(); updateStats(); });
+    noneBtn.addEventListener('click',    () => { markAllBook(book, false, card, statEl, miniFill, grid); saveState(); updateStats(); });
+
+    actions.appendChild(allReadBtn);
+    actions.appendChild(noneBtn);
+    panel.appendChild(actions);
+    panel.appendChild(grid);
+    card.appendChild(hdr);
+    card.appendChild(panel);
+
+    /* initial header state (no chapters rendered yet) */
+    refreshBookHeader(book, statEl, miniFill, card);
+
+    /* toggle */
+    function doToggle() {
+      const isOpen = card.classList.toggle('open');
+      hdr.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      if (isOpen && grid.children.length === 0) {
+        renderChapterGrid(book, grid, statEl, miniFill, card);
+      }
+    }
+    hdr.addEventListener('click', doToggle);
+    hdr.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); doToggle(); } });
+
+    return card;
+  }
+
+  function renderChapterGrid(book, grid, statEl, miniFill, card) {
+    grid.innerHTML = '';
+    for (let ch = 1; ch <= book.chapters; ch++) {
+      const btn = document.createElement('button');
+      btn.className = 'ch-btn' + (isRead(book.name, ch) ? ' read' : '');
+      btn.textContent = ch;
+      btn.title = book.name + ', Kapitel ' + ch;
+      btn.setAttribute('aria-label', 'Kapitel ' + ch + (isRead(book.name, ch) ? ' (gelesen)' : ''));
+      const thisCh = ch;
+      btn.addEventListener('click', () => {
+        const nowRead = !isRead(book.name, thisCh);
+        setRead(book.name, thisCh, nowRead);
+        btn.classList.toggle('read', nowRead);
+        btn.setAttribute('aria-label', 'Kapitel ' + thisCh + (nowRead ? ' (gelesen)' : ''));
+        saveState();
+        refreshBookHeader(book, statEl, miniFill, card);
+        updateStats();
+      });
+      grid.appendChild(btn);
+    }
+  }
+
+  function refreshBookHeader(book, statEl, miniFill, card) {
+    const n   = countReadBook(book);
+    const pct = Math.round(n / book.chapters * 100);
+    const done = n === book.chapters;
+
+    statEl.textContent = n + '/' + book.chapters;
+    miniFill.style.width = pct + '%';
+
+    let doneBadge = card.querySelector('.book-done');
+    if (done && !doneBadge) {
+      doneBadge = document.createElement('span');
+      doneBadge.className = 'book-done';
+      doneBadge.textContent = '✓';
+      card.querySelector('.book-arrow').before(doneBadge);
+    } else if (!done && doneBadge) {
+      doneBadge.remove();
+    }
+  }
+
+  function markAllBook(book, val, card, statEl, miniFill, grid) {
+    for (let i = 1; i <= book.chapters; i++) setRead(book.name, i, val);
+    // Update grid buttons if rendered
+    grid.querySelectorAll('.ch-btn').forEach((btn, idx) => {
+      btn.classList.toggle('read', val);
+      btn.setAttribute('aria-label', 'Kapitel ' + (idx + 1) + (val ? ' (gelesen)' : ''));
+    });
+    refreshBookHeader(book, statEl, miniFill, card);
+  }
+
+  /* ═══════════════════════════════════════════════════
+     RENDER
+  ═══════════════════════════════════════════════════ */
+  function renderAll() {
+    const main = document.getElementById('main');
+    main.innerHTML = '';
+
+    main.appendChild(buildSection('AT', 'Altes Testament', AT_BOOKS, AT_TOTAL));
+    main.appendChild(buildSection('NT', 'Neues Testament', NT_BOOKS, NT_TOTAL));
+  }
+
+  function buildSection(tag, title, books, total) {
+    const section = document.createElement('section');
+
+    const head = document.createElement('div');
+    head.className = 'section-head';
+    head.innerHTML =
+      `<span class="section-badge badge-${tag.toLowerCase()}">${tag}</span>` +
+      `<span class="section-title">${title}</span>` +
+      `<span class="section-meta">${books.length} Bücher &middot; ${total} Kapitel</span>`;
+
+    const list = document.createElement('div');
+    list.className = 'books-list';
+    books.forEach(book => list.appendChild(createBookCard(book)));
+
+    section.appendChild(head);
+    section.appendChild(list);
+    return section;
+  }
+
+  /* ═══════════════════════════════════════════════════
+     GOAL MODAL
+  ═══════════════════════════════════════════════════ */
+  const goalModal = document.getElementById('goalModal');
+  const goalInput = document.getElementById('goalDateInput');
+
+  function openGoalModal() {
+    const today = new Date().toISOString().split('T')[0];
+    goalInput.min = today;
+    goalInput.value = goalDate || '';
+    document.getElementById('resetLink').style.display = goalDate ? 'block' : 'none';
+    goalModal.classList.remove('hidden');
+    goalInput.focus();
+  }
+
+  function closeGoalModal() {
+    goalModal.classList.add('hidden');
+  }
+
+  document.getElementById('oneYearBtn').addEventListener('click', () => {
+    const d = new Date();
+    d.setFullYear(d.getFullYear() + 1);
+    goalInput.value = d.toISOString().split('T')[0];
+  });
+
+  document.getElementById('confirmGoalBtn').addEventListener('click', () => {
+    const val = goalInput.value;
+    if (!val) { showToast('Bitte wähle ein Datum!'); return; }
+    const sel   = new Date(val + 'T00:00:00');
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    if (sel <= today) { showToast('Das Datum muss in der Zukunft liegen!'); return; }
+    goalDate = val;
+    saveState();
+    closeGoalModal();
+    updateStats();
+    showToast('Zieldatum gespeichert ✓');
+  });
+
+  document.getElementById('goalHeaderBtn').addEventListener('click', openGoalModal);
+
+  // Close modal on overlay click only if goal already set (not first launch)
+  goalModal.addEventListener('click', (e) => {
+    if (e.target === goalModal && goalDate) closeGoalModal();
+  });
+
+  // Keyboard close
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !goalModal.classList.contains('hidden') && goalDate) closeGoalModal();
+  });
+
+  // Reset all data
+  document.getElementById('resetLink').addEventListener('click', () => {
+    if (!confirm('Wirklich alle Daten zurücksetzen? Dies kann nicht rückgängig gemacht werden.')) return;
+    readChapters = {};
+    goalDate     = null;
+    localStorage.removeItem(LS_READ);
+    localStorage.removeItem(LS_GOAL);
+    closeGoalModal();
+    renderAll();
+    updateStats();
+    openGoalModal();
+    showToast('Alle Daten zurückgesetzt');
+  });
+
+  /* ═══════════════════════════════════════════════════
+     EXPORT / IMPORT
+  ═══════════════════════════════════════════════════ */
+  document.getElementById('exportBtn').addEventListener('click', () => {
+    const payload = JSON.stringify({ version: 1, exportDate: new Date().toISOString(), goal: goalDate, read: readChapters }, null, 2);
+    const blob    = new Blob([payload], { type: 'application/json' });
+    const url     = URL.createObjectURL(blob);
+    const a       = document.createElement('a');
+    a.href        = url;
+    a.download    = 'bibletracker_' + new Date().toISOString().split('T')[0] + '.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast('Exportiert ✓');
+  });
+
+  document.getElementById('importBtn').addEventListener('click', () => {
+    document.getElementById('fileInput').click();
+  });
+
+  document.getElementById('fileInput').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        if (typeof data !== 'object' || !data.read || typeof data.read !== 'object') {
+          throw new Error('Ungültig');
+        }
+        // Validate that keys look like our format (basic check)
+        readChapters = data.read;
+        if (data.goal && typeof data.goal === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(data.goal)) {
+          goalDate = data.goal;
+        }
+        saveState();
+        renderAll();
+        updateStats();
+        showToast('Importiert ✓');
+      } catch (_) {
+        showToast('Fehler: Ungültige Datei');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  });
+
+  /* ═══════════════════════════════════════════════════
+     TOAST
+  ═══════════════════════════════════════════════════ */
+  let toastTimer;
+  function showToast(msg) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+  }
+
+  /* ═══════════════════════════════════════════════════
+     SERVICE WORKER
+  ═══════════════════════════════════════════════════ */
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    });
+  }
+
+  /* ═══════════════════════════════════════════════════
+     INIT
+  ═══════════════════════════════════════════════════ */
+  loadState();
+  renderAll();
+  updateStats();
+
+  if (!goalDate) {
+    openGoalModal();
+  }
+  </script>
+</body>
+</html>
